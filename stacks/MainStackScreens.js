@@ -7,6 +7,10 @@ import Menu from "../components/Menu";
 import Story from "../components/Story";
 import Feed from "../components/Feed";
 import UploadPostScreen from "../screens/UploadPostScreen";
+import TestScreen from "../screens/TestScreen";
+import PostStackScreen from "./PostStackScreen";
+import ChatNavigation from "../navi/ChatNavigation";
+import AddFriend from "../screens/AddFriend";
 export default MainStackScreens = () => {
     const MainStack = createBottomTabNavigator();
     const screenOptions1 = ({ route }) => ({
@@ -63,10 +67,10 @@ export default MainStackScreens = () => {
                 headerShown: false,
               })}
         >
-            <MainStack.Screen name="Message" component={Menu} />
-            <MainStack.Screen name="Call" component={Feed} />
-            <MainStack.Screen name="Diary" component={UploadPostScreen} />
-            <MainStack.Screen name="Profile" component={Feed} />
+            <MainStack.Screen name="Message" component={PostStackScreen} />
+            <MainStack.Screen name="Call" component={ChatNavigation} />
+            <MainStack.Screen name="Diary" component={AddFriend} />
+            <MainStack.Screen name="Profile" component={PostScreen} />
 
         </MainStack.Navigator>
     );

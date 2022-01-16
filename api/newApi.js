@@ -14,7 +14,6 @@ const getAll = async () => {
         const response = await apiClient.get('/posts/list', axiosConfig)
         // response.data
         if (response.data){
-            console.log("abc, ",response.data.data)
             return response.data.data;
         }
  
@@ -48,13 +47,12 @@ const likePost = async postId => {
     const userToken = await AsyncStorage.getItem('userToken');
     let axiosConfig = {
         headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
             authorization: "token " + userToken,
         }
       };
     try{
         console.log('postId', postId)
-        const response = await apiClient.post(`/postLike/action/${postId}`, axiosConfig)
+        const response = await apiClient.post(`/postLike/action/${postId}`, null, axiosConfig)
         if (response.data){
             console.log("abc, ",response.data.data)
             return response.data.data;
@@ -65,6 +63,58 @@ const likePost = async postId => {
         return [];
     }
 }
+const upPost = async (described, images) => {
+    const userToken = await AsyncStorage.getItem('userToken');
+    
+    let axiosConfig = {
+        headers: {
+            authorization: "token " + userToken,
+        },
+        data :{
+            'described': described,
+            'images': images,
+        }
+      };
+    try{
+        const response = await apiClient.post('/posts/create', {
+            'described': described,
+            'images': images
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+                authorization: "token " + userToken,
+            }
+        })
+        if (response.data){
+            console.log("efg, ",response.data.data)
+            return response.data.data;
+        }
+ 
+    } catch (error) {
+        console.log('Error when up post', error.message)
+        return [];
+    }
+}
+const deletePost = async postId => {
+    const userToken = await AsyncStorage.getItem('userToken');
+    let axiosConfig = {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            authorization: "token " + userToken,
+        }
+      };
+    try{
+        const response = await apiClient.get(`/posts/delete/${postId}`, axiosConfig)
+        // response.data
+        if (response.data){
+            return response.data.data;
+        }
+ 
+    } catch (error) {
+        console.log('Error when deleting posts', error.message)
+        return fakeData;
+    }
+}
 
-
-export default {getAll, getUser, likePost};
+export default {getAll, getUser, likePost, upPost, deletePost};

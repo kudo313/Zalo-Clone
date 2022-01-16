@@ -11,16 +11,43 @@ import Story from '../components/Story'
 import Feed from '../components/Feed'
 import Menu from '../components/Menu'
 import fakeData from '../fakeData'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import usePost from '../hooks/usePost'
 import ActivityIndicator from '../components/ActivityIndicator'
+import { useIsFocused } from '@react-navigation/native';
+import newApi from '../api/newApi';
+
 const Container = styled.SafeAreaView`
 	flex: 1;
 `
 
-export default PostScreen = ({}) => {
-	const [dataPost, userInfo, loading,] = usePost();
-	console.log('dataPost', dataPost[0])
+export default PostScreen = ({navigation}) => {
+	// const [dataPost, userInfo, loading,] = usePost();
+	const [dataPost, setDataPost]  = useState(false)
+    const [loading, setLoading] = useState(true);    
+    const [userInfo, setDataUser] = useState(false);
+	const isFocused = useIsFocused();
+	const [isDel, setDel] = useState()
+    const getAllPosts = async () => {
+        const allPost = await newApi.getAll().then((data) => {
+            return data
+        });
+        setDataPost(allPost)
+        const userInfo = await newApi.getUser().then((data) => {
+            return data
+        });
+        setDataUser(userInfo)
+        if (allPost && userInfo) {
+            setLoading(false)
+        }
+    }
+    useEffect(() => {
+		setDataPost(false)
+		setDataUser(false)
+		setLoading(true)
+        getAllPosts()
+    }, [isFocused]);
+
 	return (
 		<>
 			<ActivityIndicator visible = {loading} />
@@ -34,15 +61,16 @@ export default PostScreen = ({}) => {
 					{/* <ToolBar /> */}
 					{/* {dataPost && <Feed data = {dataPost} />} */}
 					{userInfo &&
-					<ToolBar data = {userInfo} />}
+					<ToolBar data = {userInfo} navigation={navigation}/>}
 					{dataPost &&
 					<FlatList
 					 	data = {dataPost}
-						 keyExtractor={item => item._id}
+						//  keyExtractor={item => item._id}
 						 renderItem={({ item }) => (
 							<Feed
 							//   onPress={() => navigation.push('NewsDetail', { item })}
 							  data={item}
+							  myPost={userInfo._id === item.author._id ? true : false}
 							/>
 						  )}
 						/>}
@@ -53,21 +81,3 @@ export default PostScreen = ({}) => {
 	
 };
 
-// import React from "react";
-// import { View, Text, StyleSheet } from "react-native";
-
-// export default PostScreen = () => {
-//     return (
-//         <View style={styles.container}>
-//             <Text>Post Screen</Text>
-//         </View>
-//     );
-// };
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         justifyContent: "center",
-//         alignItems: "center",
-//     },
-// });

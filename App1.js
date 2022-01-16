@@ -60,21 +60,32 @@ export default App = () => {
   const [loginState, dispatch] = React.useReducer(loginReducer, initialLoginState);
 
   const authContext = React.useMemo(() => ({
+
     signIn: async (data) => {
+      
       const userToken = data.token;
+      const userId = data.data.id;
+      console.log(userId);
+
       try {
+     
         await AsyncStorage.setItem('userToken', userToken);
+        await AsyncStorage.setItem('userId', userId);
       } catch (e) {
         console.log(e);
       }
 
-      dispatch({ type: 'LOGIN', 
-      token: userToken });
+      dispatch({ 
+        type: 'LOGIN', 
+        token: userToken 
+      });
     },
+
     signOut: async () => {
 
       try {
         await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('userId');
       } catch (e) {
         console.log(e);
       }
@@ -83,15 +94,17 @@ export default App = () => {
 
     signUp: async (data) => {
       const userToken = data.token;
-      const id = data.data.id;
+      const userId = data.data.id;
       const phone = data.data.phone;
       try {
         await AsyncStorage.setItem('userToken', userToken);
+        await AsyncStorage.setItem('userId', userId);
       } catch (e) {
         console.log(e);
       }
 
-      dispatch({ type: 'REGISTER',
+      dispatch({ 
+      type: 'REGISTER',
        token: userToken });
     },
     
@@ -111,7 +124,7 @@ export default App = () => {
         );
 
         if (res.status == 200) {
-          Alert.alert('Thành công!', 'Bạn đã đổi mật khẩu thành công', [
+          Alert.alert('Thành công!' , 'Bạn đã đổi mật khẩu thành công', [
             { text: 'Okay', onPress: () => navigation.navigate('Home') }
           ]);
         }

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { View } from 'react-native'
+import { FlatList, View } from 'react-native'
 
 import styled from 'styled-components/native'
 
@@ -10,6 +10,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Avatar from './Avatar'
 import { useState } from 'react'
 import newApi from '../api/newApi'
+import ActionSheet from 'react-native-actionsheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Container = styled.View`
 	flex: 1;
 	background-color: #fff;
@@ -138,10 +140,27 @@ const BottomDivider1 = styled.View`
 	height: 9px;
 	background: #f0f2f5;
 `
-const Feed = ({data}) => {
-	console.log('data In feed1: ', data.like)
+import { TouchableOpacity } from 'react-native'
+const Feed = ({data, myPost}) => {
+	console.log('data In feed1: ', data._id)
 	const [isLike, setLike] = useState(data.isLike)
-	
+	showMyPostOption = () => {
+		console.log("thiS id:", data._id)
+		this.myActionSheet.show()
+	}
+	showAnotherPostOption = () => {
+		this.anotherActionSheet.show()
+	}
+	onActionMyPost = index => {
+		switch (index) {
+			case 0:
+				console.log("delete id:", data._id)
+				const res = newApi.deletePost(data._id)
+			default:
+				break
+		}
+	}
+	const [numLike, setNumLike] = useState(Object.keys(data.like).length)
 	return (
 		<>
 			<Container>
@@ -157,29 +176,43 @@ const Feed = ({data}) => {
 							</Row>
 						</View>
 					</Row>
+					<TouchableOpacity onPress={myPost ? this.showMyPostOption.bind(this) : this.showAnotherPostOption.bind(this)}>
 					<Entypo
 						name='dots-three-horizontal'
 						size={15}
 						color='#222121'
 					/>
+					</TouchableOpacity>
 				</Header>
 				<Post>
 					{data.described}
 				</Post>
-				<Photo source={{uri:`http://192.168.1.4:8000/files/${data.images[0].fileName}`}}/>
+				<FlatList
+					data = {data.images}
+					renderItem={({item}) => (
+						<Photo source = {{uri:`http://192.168.1.4:8000/files/${item.fileName}`}}/>
+					)}
+				/>
+				{/* <Photo source={{uri:`http://192.168.1.4:8000/files/${data.images[0].fileName}`}}/> */}
 				<Footer>
 					<FooterCount>
 						<Row>
-							<Button onPress = { async () => {
-								const likePost = await newApi.likePost(data._id).then((data) => {
+							<Button onPress = {  () => {
+								const likePost = newApi.likePost(data._id).then((data) => {
+									console.log('id like:', data._id)
 									return data
 								})
 								.catch(function(error){
 									console.log(error.message)
 								})
 								console.log('likepost', likePost)
-								if (likePost) {
+								if (likePost && isLike) {
+									setLike(false)
+									setNumLike(numLike -1 )
+								}
+								else{
 									setLike(true)
+									setNumLike(numLike +  1)
 								}
 							}}>
 								<AntDesign 
@@ -187,17 +220,35 @@ const Feed = ({data}) => {
 								size={24} 
 								color= {isLike == false ? "gray" : "red" }/>
 							</Button>
-							<TextCount>{Object.keys(data.like).length}</TextCount>
+							<TextCount>{numLike}</TextCount>
 							<Button>
 								<MaterialCommunityIcons name="comment-multiple-outline" size={24} color="gray" />
 							</Button>
 							<TextCount>{data.countComments}</TextCount>
 						</Row>
 					</FooterCount>
-
+					{/* <TouchableOpacity onPress={() => {AsyncStorage.removeItem('userToken');}}><Text>abc</Text></TouchableOpacity> */}
 				</Footer>
 				<BottomDivider />
 			</Container>
+			<ActionSheet
+				ref={o => (this.myActionSheet = o)}
+				options={['Xoá bài viết...', 'Sửa bài viết...', 'Huỷ...']}
+				cancelButtonIndex={2}
+				destructiveButtonIndex={1}
+				onPress={index => {
+					onActionMyPost(index)
+				}}
+			/>
+			<ActionSheet
+				ref={o => (this.anotherActionSheet = o)}
+				options={['Báo cáo bài viết...', 'Huỷ... ']}
+				cancelButtonIndex={1}
+				destructiveButtonIndex={0}
+				onPress={index => {
+					this.showMyPostOption();
+				}}
+			/>
 		</>
 	
 	)

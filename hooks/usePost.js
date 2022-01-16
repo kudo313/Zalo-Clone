@@ -8,12 +8,10 @@ const usePost = () => {
     const getAllPosts = async () => {
         // setLoading(true);
         const allPost = await newApi.getAll().then((data) => {
-            console.log('dataPosst', data)
             return data
         });
         setDataPost(allPost)
         const userInfo = await newApi.getUser().then((data) => {
-            console.log('user data', data)
             return data
         });
         setDataUser(userInfo)

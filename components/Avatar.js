@@ -27,7 +27,6 @@ const UserActive = styled.View`
 `
 
 const Avatar = ({ source, online, story }) => {
-	console.log(`http://192.168.1.4:8000/files/${source}`)
 	return (
 		<Container>
 			<User source={{uri:`http://192.168.1.4:8000/files/${source}`}} story={story} />
